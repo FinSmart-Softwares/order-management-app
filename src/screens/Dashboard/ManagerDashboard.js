@@ -3,7 +3,7 @@ import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Dimensions } from
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { useNavigation } from "@react-navigation/native";
 import { BarChart, PieChart } from "react-native-chart-kit";
-
+import { useState } from 'react';
 export default function ManagerDashboard({ setIsLoggedIn }) {
   const navigation = useNavigation();
   const screenWidth = Dimensions.get("window").width;
@@ -48,11 +48,14 @@ const engineers = [
   },
 ];
 
+const [profileMenuVisible, setProfileMenuVisible] = useState(false);
 
   const gridWidth = TIME_SLOTS.length * CELL_WIDTH;
 
   return (
-    <ScrollView style={styles.container}>
+   <View style={{ flex: 1, position: "relative" }}>
+  <ScrollView style={styles.container}>
+
 
       {/* HEADER */}
       <View style={styles.header}>
@@ -60,7 +63,10 @@ const engineers = [
           <Text style={styles.greeting}>Welcome back 👋</Text>
           <Text style={styles.username}>Manager</Text>
         </View>
-        <Ionicons name="person-circle-outline" size={40} color="#fff" />
+   <TouchableOpacity onPress={() => setProfileMenuVisible(!profileMenuVisible)}>
+  <Ionicons name="person-circle-outline" size={40} color="#fff" />
+</TouchableOpacity>
+
       </View>
 
       {/* SEARCH BAR */}
@@ -155,7 +161,7 @@ const engineers = [
 
         <TouchableOpacity
           style={styles.actionCard}
-          onPress={() => navigation.navigate("Reports")}
+          onPress={() => navigation.navigate("SelectOrg")}
         >
           <Ionicons name="bar-chart-outline" size={28} color="#2563eb" />
           <Text style={styles.actionText}>Reports</Text>
@@ -255,8 +261,40 @@ const engineers = [
         </View>
       </View>
 
+{profileMenuVisible && (
+  <View style={styles.popupMenu}>
+
+    {/* PROFILE BUTTON */}
+    <TouchableOpacity
+      style={styles.menuBtn}
+      onPress={() => {
+        setProfileMenuVisible(false);
+        navigation.navigate("ManagerProfile");  // GO TO PROFILE PAGE
+      }}
+    >
+      <Ionicons name="person-outline" size={20} color="#fff" />
+      <Text style={styles.menuText}>Profile</Text>
+    </TouchableOpacity>
+
+    {/* LOGOUT BUTTON */}
+    <TouchableOpacity
+      style={[styles.menuBtn, { backgroundColor: "#ef4444" }]}
+      onPress={() => {
+        setIsLoggedIn(false);
+        setProfileMenuVisible(false);
+      }}
+    >
+      <Ionicons name="log-out-outline" size={20} color="#fff" />
+      <Text style={styles.menuText}>Logout</Text>
+    </TouchableOpacity>
+
+  </View>
+)}
+
 
     </ScrollView>
+    </View>
+
   );
 }
 
@@ -264,11 +302,13 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#f8fafc',
-    paddingBottom: 40,
-    marginBottom: 40
+    // paddingBottom: 40,
+    // marginBottom: 40
   },
 
   header: {
+        paddingTop:40,
+
     backgroundColor: '#0f172a',
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -329,6 +369,60 @@ const styles = StyleSheet.create({
     marginHorizontal: 16,
     marginTop: 12,
   },
+
+popupMenu: {
+  position: "absolute",
+  top: 70,
+  right: 20,
+ 
+  // elevation: 8,
+  // paddingVertical: 8,
+  paddingHorizontal: 0,
+  zIndex: 999,
+  width: 140,
+  flexDirection: "column", // stack items vertically
+  alignItems: "stretch",   // button fills width
+},
+
+// Logout button inside popup
+logoutBtn: {
+  flexDirection: "row",
+  alignItems: "center",
+  justifyContent: "flex-start",
+  backgroundColor: "#ef4444", // red
+  paddingVertical: 10,
+  paddingHorizontal: 12,
+  borderRadius: 8,
+  marginHorizontal: 8,
+  marginVertical: 4,
+}, 
+
+// Logout text styling
+logoutText: {
+  color: "#fff",
+  fontSize: 14,
+  fontWeight: "600",
+  marginLeft: 8,
+},
+menuBtn: {
+  flexDirection: "row",
+  alignItems: "center",
+  backgroundColor: "#0f172a",
+  paddingVertical: 10,
+  paddingHorizontal: 12,
+  borderRadius: 8,
+  marginHorizontal: 8,
+  marginVertical: 4,
+},
+
+menuText: {
+  color: "#fff",
+  fontSize: 14,
+  fontWeight: "600",
+  marginLeft: 8,
+},
+
+
 
   actionCard: {
     backgroundColor: '#fff',

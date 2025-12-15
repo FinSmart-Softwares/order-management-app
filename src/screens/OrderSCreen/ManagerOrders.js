@@ -1,4 +1,4 @@
-import React, { useReducer } from "react";
+import React, { useReducer, useState } from "react";
 import {
   View,
   Text,
@@ -10,10 +10,10 @@ import {
 import Ionicons from "react-native-vector-icons/Ionicons";
 import { ordersReducer, initialState } from "../../reducer/ordersReducer";
 
-// ------------------------------------
-// MOCK DATA
-// ------------------------------------
-const ordersData = [
+// ------------------------------------------------
+// MOCK ORDERS
+// ------------------------------------------------
+const ordersDataList = [
   {
     id: "2025/11/1318",
     customer: "Walkin Customer",
@@ -58,10 +58,13 @@ const ordersData = [
   },
 ];
 
-// ------------------------------------
-
 const ManagerOrders = () => {
   const [state, dispatch] = useReducer(ordersReducer, initialState);
+
+  // NEW STATE: Select mode + selected order + final list
+  const [orderList, setOrderList] = useState(ordersDataList);
+  const [isSelectMode, setIsSelectMode] = useState(false);
+  const [selectedOrder, setSelectedOrder] = useState(null);
 
   const {
     searchText,
@@ -71,10 +74,10 @@ const ManagerOrders = () => {
     openDropdown,
   } = state;
 
-  // ------------------------------------
-  // FILTERING
-  // ------------------------------------
-  const filteredOrders = ordersData.filter((o) => {
+  // ------------------------------------------------
+  // FILTERING (NO CHANGE)
+  // ------------------------------------------------
+  const filteredOrders = orderList.filter((o) => {
     const s = searchText.toLowerCase();
 
     const matchesSearch =
@@ -93,9 +96,9 @@ const ManagerOrders = () => {
     return matchesSearch && matchesWarehouse && matchesStatus && matchesType;
   });
 
-  // ------------------------------------
-  // STATUS BADGES
-  // ------------------------------------
+  // ------------------------------------------------
+  // STATUS BADGES (NO CHANGE)
+  // ------------------------------------------------
   const renderOrderStatus = (status) => {
     let bg = "#E5E7EB";
     let color = "#374151";
@@ -118,9 +121,6 @@ const ManagerOrders = () => {
     );
   };
 
-  // ------------------------------------
-  // PAYMENT BADGE
-  // ------------------------------------
   const renderPaymentStatus = (status) => {
     let bg = "#E5E7EB";
     let color = "#374151";
@@ -143,8 +143,6 @@ const ManagerOrders = () => {
     );
   };
 
-  // ------------------------------------
-
   const Dropdown = ({ options, onSelect }) => (
     <View style={styles.dropdownBox}>
       {options.map((opt) => (
@@ -162,11 +160,38 @@ const ManagerOrders = () => {
     </View>
   );
 
-  // ------------------------------------
-  // RENDER LIST CARD
-  // ------------------------------------
+  // ------------------------------------------------
+  // RENDER ORDER WITH SELECT CHECKBOX (NEW)
+  // ------------------------------------------------
   const renderItem = ({ item }) => (
-    <View style={styles.card}>
+    <TouchableOpacity
+      onPress={() => {
+        if (isSelectMode) setSelectedOrder(item);
+      }}
+      style={[
+        styles.card,
+        selectedOrder?.id === item.id && isSelectMode && {
+          borderWidth: 2,
+          borderColor: "#2563eb",
+        },
+      ]}
+    >
+      {/* NEW: Checkbox */}
+      {isSelectMode && (
+        <View style={styles.checkboxRow}>
+          <Ionicons
+            name={
+              selectedOrder?.id === item.id
+                ? "checkbox"
+                : "square-outline"
+            }
+            size={28}
+            color="#1d4ed8"
+          />
+          <Text style={{ marginLeft: 8 }}>Select</Text>
+        </View>
+      )}
+
       <View style={styles.topRow}>
         <Text style={styles.time}>{item.time}</Text>
         <Ionicons name="chevron-forward" size={22} color="#9CA3AF" />
@@ -177,7 +202,6 @@ const ManagerOrders = () => {
       <Text style={styles.created}>Created By: {item.createdBy}</Text>
       <Text style={styles.delivery}>Delivery: {item.deliveryDate}</Text>
       <Text style={styles.amount}>Total: ₹{item.grandTotal}</Text>
-      <Text style={styles.orderStatus}>Payment Status: {item.paymentStatus}</Text>
 
       <View style={styles.rowBetween}>
         <Text style={styles.labelSmall}>Paid: ₹{item.paid}</Text>
@@ -185,18 +209,46 @@ const ManagerOrders = () => {
       </View>
 
       <View style={styles.statusWrapper}>{renderOrderStatus(item.orderStatus)}</View>
-    </View>
+    </TouchableOpacity>
   );
 
-  // ------------------------------------
+  // ------------------------------------------------
+  // CHANGE WAREHOUSE FUNCTION
+  // ------------------------------------------------
+  const handleWarehouseChange = (newWarehouse) => {
+    const updated = orderList.map((o) =>
+      o.id === selectedOrder.id ? { ...o, warehouse: newWarehouse } : o
+    );
+
+    setOrderList(updated);
+    setSelectedOrder(null);
+    setIsSelectMode(false);
+  };
+
+  // ------------------------------------------------
   // MAIN UI
-  // ------------------------------------
+  // ------------------------------------------------
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Order List</Text>
+      <View style={styles.headerRow}>
+        <Text style={styles.title}>Order List</Text>
+
+        {/* NEW: Add Icon */}
+        <TouchableOpacity
+          onPress={() => {
+            setIsSelectMode(!isSelectMode);
+            setSelectedOrder(null);
+          }}
+        >
+          <Ionicons
+            name={isSelectMode ? "close-circle-outline" : "add-circle-outline"}
+            size={34}
+            color="#1d4ed8"
+          />
+        </TouchableOpacity>
+      </View>
 
       <View style={styles.filterRow}>
-        {/* Search */}
         <View style={styles.searchBar}>
           <Ionicons name="search-outline" size={22} />
           <TextInput
@@ -207,10 +259,8 @@ const ManagerOrders = () => {
           />
         </View>
 
-        {/* ICONS  */}
         <View style={{ flexDirection: "row" }}>
-
-          {/* Warehouse */}
+          {/* WAREHOUSE FILTER ICON */}
           <View style={{ marginHorizontal: 6 }}>
             <TouchableOpacity
               onPress={() =>
@@ -232,7 +282,7 @@ const ManagerOrders = () => {
             )}
           </View>
 
-          {/* Status */}
+          {/* STATUS FILTER */}
           <View style={{ marginHorizontal: 6 }}>
             <TouchableOpacity
               onPress={() =>
@@ -254,7 +304,7 @@ const ManagerOrders = () => {
             )}
           </View>
 
-          {/* Order Type */}
+          {/* ORDER TYPE FILTER */}
           <View style={{ marginHorizontal: 6 }}>
             <TouchableOpacity
               onPress={() =>
@@ -278,23 +328,42 @@ const ManagerOrders = () => {
         </View>
       </View>
 
-      {/* Order List */}
-      <FlatList
-        data={filteredOrders}
-        keyExtractor={(item) => item.id}
-        renderItem={renderItem}
-      />
+      <FlatList data={filteredOrders} keyExtractor={(i) => i.id} renderItem={renderItem} />
+
+      {/* NEW: BOTTOM ACTION BAR */}
+      {isSelectMode && selectedOrder && (
+        <View style={styles.bottomPanel}>
+          <Text style={styles.bottomTitle}>Change Warehouse</Text>
+
+          {["Warehouse 1", "Warehouse 2", "Warehouse 3"].map((wh) => (
+            <TouchableOpacity
+              key={wh}
+              style={styles.bottomOption}
+              onPress={() => handleWarehouseChange(wh)}
+            >
+              <Text style={styles.bottomOptionText}>{wh}</Text>
+            </TouchableOpacity>
+          ))}
+        </View>
+      )}
     </View>
   );
 };
 
 export default ManagerOrders;
 
-// ------------------------------------
-// SAME STYLE (NO CHANGE)
-// ------------------------------------
+// ------------------------------------------------
+// SAME STYLES + NEW STYLES (ADDED BELOW)
+// ------------------------------------------------
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: "#f8fafc", padding: 16, paddingTop: 50 },
+
+  headerRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+  },
+
   title: { fontSize: 26, fontWeight: "700", marginBottom: 16 },
 
   filterRow: {
@@ -341,6 +410,12 @@ const styles = StyleSheet.create({
     elevation: 3,
   },
 
+  checkboxRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginBottom: 10,
+  },
+
   topRow: { flexDirection: "row", justifyContent: "space-between" },
   time: { color: "#475569" },
 
@@ -350,17 +425,49 @@ const styles = StyleSheet.create({
   delivery: { marginTop: 4 },
   amount: { marginTop: 6, fontWeight: "700" },
 
-  orderStatus: {
+  rowBetween: {
+    flexDirection: "row",
+    justifyContent: "space-between",
     marginTop: 6,
-    fontSize: 14,
-    fontWeight: "600",
-    color: "#0f172a",
   },
-
-  rowBetween: { flexDirection: "row", justifyContent: "space-between", marginTop: 6 },
 
   statusWrapper: { alignSelf: "flex-end", marginTop: 10 },
 
-  paymentTag: { paddingVertical: 5, paddingHorizontal: 12, borderRadius: 12 },
+  paymentTag: {
+    paddingVertical: 5,
+    paddingHorizontal: 12,
+    borderRadius: 12,
+  },
   paymentText: { fontWeight: "700" },
+
+  // BOTTOM PANEL
+  bottomPanel: {
+    position: "absolute",
+    bottom: 0,
+    width: "100%",
+    backgroundColor: "#fff",
+    padding: 20,
+    borderTopLeftRadius: 20,
+    borderTopRightRadius: 20,
+    elevation: 10,
+  },
+
+  bottomTitle: {
+    fontSize: 18,
+    fontWeight: "700",
+    marginBottom: 10,
+  },
+
+  bottomOption: {
+    padding: 14,
+    borderRadius: 12,
+    backgroundColor: "#e2e8f0",
+    marginTop: 8,
+  },
+
+  bottomOptionText: {
+    fontSize: 16,
+    fontWeight: "600",
+    color: "#1e293b",
+  },
 });

@@ -7,10 +7,11 @@ import SalespersonClientScreen from "../screens/ClientsScreen/SalespersonClientS
 import SalespersonOrderScreen from "../screens/OrderSCreen/SalespersonOrderScreen";
 import SalespersonPlannerScreen from "../screens/PlannerScreen/SalespersonPlannerScreen";
 import SalesNewOrder from "../screens/NewOrder/SalesNewOrder";
+import SalespersonProfile from "../screens/Salesperson/SalesspersonProfile";  // <-- ADDED
 
 const Tab = createBottomTabNavigator();
 
-export default function SalesTabNavigator() {
+export default function SalesTabNavigator({ setIsLoggedIn }) {
   return (
     <Tab.Navigator
       screenOptions={({ route }) => ({
@@ -24,17 +25,17 @@ export default function SalesTabNavigator() {
           borderTopLeftRadius: 20,
           borderTopRightRadius: 20,
         },
-
         tabBarIcon: ({ focused }) => {
           const icon = {
             Home: "home-outline",
             Orders: "cart-outline",
             Clients: "people-outline",
             Planner: "calendar-outline",
-            NewOrder: "add-circle-outline", // ⭐ Added missing icon
+            NewOrder: "add-circle-outline",
+            Profile: "person-circle-outline", // <-- ADDED
           };
 
-          const iconName = icon[route.name] || "help-circle-outline"; // fallback
+          const iconName = icon[route.name] || "help-circle-outline";
 
           return (
             <Ionicons
@@ -46,11 +47,24 @@ export default function SalesTabNavigator() {
         },
       })}
     >
-      <Tab.Screen name="Home" component={SalespersonDashboard} />
+
+      <Tab.Screen name="Home">
+        {(props) => <SalespersonDashboard {...props} setIsLoggedIn={setIsLoggedIn} />}
+      </Tab.Screen>
+
       <Tab.Screen name="Orders" component={SalespersonOrderScreen} />
+
       <Tab.Screen name="NewOrder" component={SalesNewOrder} />
+
       <Tab.Screen name="Clients" component={SalespersonClientScreen} />
+
       <Tab.Screen name="Planner" component={SalespersonPlannerScreen} />
+
+      {/* NEW PROFILE TAB */}
+      <Tab.Screen name="Profile">
+        {(props) => <SalespersonProfile {...props} setIsLoggedIn={setIsLoggedIn} />}
+      </Tab.Screen>
+
     </Tab.Navigator>
   );
 }

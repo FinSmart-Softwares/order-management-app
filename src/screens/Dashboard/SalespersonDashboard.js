@@ -1,28 +1,61 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, ScrollView } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { useNavigation } from "@react-navigation/native";
 
-
 export default function SalespersonDashboard({ setIsLoggedIn }) {
-    const navigation = useNavigation(); // 👈 Add this line
+  const navigation = useNavigation();
+
+  // 👇 New state for showing logout menu
+  const [showMenu, setShowMenu] = useState(false);
 
   return (
     <ScrollView style={styles.container}>
+
       {/* HEADER */}
       <View style={styles.header}>
         <View>
           <Text style={styles.greeting}>Welcome back 👋</Text>
           <Text style={styles.username}>Alex Johnson</Text>
         </View>
-        <Ionicons name="person-circle-outline" size={40} color="#fff" />
+
+        {/* 👇 Person Icon (Press to show logout popup) */}
+        <TouchableOpacity onPress={() => setShowMenu(!showMenu)}>
+          <Ionicons name="person-circle-outline" size={40} color="#fff" />
+        </TouchableOpacity>
       </View>
 
-      {/* ✅ Logout button */}
-      <TouchableOpacity style={styles.logoutBtn} onPress={() => setIsLoggedIn(false)}>
-        <Ionicons name="log-out-outline" size={18} color="#fff" />
-        <Text style={styles.logoutText}>Logout</Text>
-      </TouchableOpacity>
+      {/* 👇 Logout Popup Menu */}
+{showMenu && (
+  <View style={styles.popupMenu}>
+
+    {/* Profile Button */}
+    <TouchableOpacity
+      style={styles.menuBtn}
+      onPress={() => {
+        setShowMenu(false);
+        navigation.navigate("Profile"); // Navigate to Profile page
+      }}
+    >
+      <Ionicons name="person-outline" size={20} color="#fff" />
+      <Text style={styles.menuText}>Profile</Text>
+    </TouchableOpacity>
+
+    {/* Logout Button */}
+    <TouchableOpacity
+      style={[styles.menuBtn, { backgroundColor: "#ef4444" }]}
+      onPress={() => {
+        setShowMenu(false);
+        setIsLoggedIn(false);
+      }}
+    >
+      <Ionicons name="log-out-outline" size={20} color="#fff" />
+      <Text style={styles.menuText}>Logout</Text>
+    </TouchableOpacity>
+
+  </View>
+)}
+
 
       {/* SEARCH BAR */}
       <View style={styles.searchBar}>
@@ -53,19 +86,27 @@ export default function SalespersonDashboard({ setIsLoggedIn }) {
       {/* ACTION CARDS */}
       <Text style={styles.sectionTitle}>Quick Actions</Text>
       <View style={styles.actionsContainer}>
-        <TouchableOpacity style={[styles.actionCard, { backgroundColor: '#2563eb' }]} onPress={() => navigation.navigate("NewOrder")} >
+        <TouchableOpacity
+          style={[styles.actionCard, { backgroundColor: '#2563eb' }]}
+          onPress={() => navigation.navigate("NewOrder")}
+        >
           <Ionicons name="add-circle-outline" size={28} color="#fff" />
           <Text style={styles.actionTextLight}>New Order</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.actionCard}  onPress={() => navigation.navigate("Orders")}>
-          <Ionicons name="people-outline" size={28} color="#2563eb" />
 
+        <TouchableOpacity
+          style={styles.actionCard}
+          onPress={() => navigation.navigate("Orders")}
+        >
+          <Ionicons name="people-outline" size={28} color="#2563eb" />
           <Text style={styles.actionText}>Customer List</Text>
         </TouchableOpacity>
+
         <TouchableOpacity style={styles.actionCard}>
           <Ionicons name="calendar-outline" size={28} color="#2563eb" />
           <Text style={styles.actionText}>Visit Plan</Text>
         </TouchableOpacity>
+
         <TouchableOpacity style={styles.actionCard}>
           <Ionicons name="alert-circle-outline" size={28} color="#ef4444" />
           <Text style={styles.actionText}>Pending Orders</Text>
@@ -82,10 +123,12 @@ export default function SalespersonDashboard({ setIsLoggedIn }) {
         <Text style={styles.visitTitle}>Visit to Dealer: Groz Tools</Text>
         <Text style={styles.visitSub}>Fri - Oct 31, 2025 | 3:00 PM</Text>
       </View>
+
     </ScrollView>
   );
 }
 
+// SAME STYLES (unchanged)
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#f8fafc' },
   header: {
@@ -94,24 +137,16 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
     padding: 20,
+    paddingTop:30,
     borderBottomLeftRadius: 20,
     borderBottomRightRadius: 20,
+   
   },
   greeting: { color: '#cbd5e1', fontSize: 14 },
   username: { color: '#fff', fontSize: 20, fontWeight: '600' },
-  logoutBtn: {
-    flexDirection: 'row',
-    alignSelf: 'flex-end',
-    backgroundColor: '#ef4444',
-    marginTop: 10,
-    marginRight: 16,
-    paddingVertical: 8,
-    paddingHorizontal: 16,
-    borderRadius: 10,
-    alignItems: 'center',
-    gap: 6,
-  },
-  logoutText: { color: '#fff', fontWeight: '600' },
+
+  
+
   searchBar: {
     backgroundColor: '#fff',
     marginHorizontal: 16,
@@ -145,6 +180,44 @@ const styles = StyleSheet.create({
     padding: 14,
     elevation: 3,
   },
+
+  // Popup container (already present)
+// Popup container (column layout)
+   popupMenu: {
+  position: "absolute",
+  top: 70,
+  right: 20,
+ 
+  // elevation: 8,
+  // paddingVertical: 8,
+  paddingHorizontal: 0,
+  zIndex: 999,
+  width: 140,
+  flexDirection: "column", // stack items vertically
+  alignItems: "stretch",   // button fills width
+},
+
+// Logout button inside popup
+logoutBtn: {
+  flexDirection: "row",
+  alignItems: "center",
+  justifyContent: "flex-start",
+  backgroundColor: "#ef4444", // red
+  paddingVertical: 10,
+  paddingHorizontal: 12,
+  borderRadius: 8,
+  marginHorizontal: 8,
+  marginVertical: 4,
+}, 
+
+// Logout text styling
+logoutText: {
+  color: "#fff",
+  fontSize: 14,
+  fontWeight: "600",
+  marginLeft: 8,
+},
+
   summaryNumber: {
     fontSize: 20,
     fontWeight: '700',
@@ -178,6 +251,24 @@ const styles = StyleSheet.create({
     padding: 14,
     elevation: 3,
   },
+  menuBtn: {
+  flexDirection: "row",
+  alignItems: "center",
+  backgroundColor: "#0f172a",
+  paddingVertical: 10,
+  paddingHorizontal: 12,
+  borderRadius: 8,
+  marginHorizontal: 8,
+  marginVertical: 4,
+},
+
+menuText: {
+  color: "#fff",
+  fontSize: 14,
+  fontWeight: "600",
+  marginLeft: 8,
+},
+
   visitTitle: { fontSize: 15, fontWeight: '600', color: '#1e293b' },
   visitSub: { color: '#64748b', fontSize: 13, marginTop: 4 },
 });

@@ -5,20 +5,21 @@ import Ionicons from 'react-native-vector-icons/Ionicons';
 import CustomText from '../../components/CustomText';
 
 export default function LoginScreen({ setIsLoggedIn, setUserRole }) {
+  const [login,etlogin]=useState('')
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [hidePass, setHidePass] = useState(true);
-  const [role, setRole] = useState(null); // Manager or Salesperson
+  const [role, setRole] = useState(null); // manager | salesperson | dealer
 
   const handleLogin = () => {
 
     if (!role) {
-      return Alert.alert("Select Role", "Please choose Manager or Salesperson.");
+      return Alert.alert("Select Role", "Please choose a role to continue.");
     }
 
-    // Simple login (local)
+    // Simple login
     if (email === 'admin@.com' && password === '1234') {
-      setUserRole(role);   // store which UI to open
+      setUserRole(role);   // manager / salesperson / dealer
       setIsLoggedIn(true);
     } else {
       Alert.alert('Login Failed', 'Invalid email or password');
@@ -27,8 +28,7 @@ export default function LoginScreen({ setIsLoggedIn, setUserRole }) {
 
   return (
     <View style={styles.container}>
-      
-      {/* Header Gradient */}
+
       <LinearGradient
         colors={['#0066ff', '#9336fd']}
         start={{ x: 0, y: 0 }}
@@ -38,7 +38,6 @@ export default function LoginScreen({ setIsLoggedIn, setUserRole }) {
         <Image source={require('../../assets/logo.png')} style={{ width: 70, height: 70 }} />
       </LinearGradient>
 
-      {/* Main Card */}
       <View style={styles.card}>
         <CustomText style={styles.title} weight="Medium">
           Welcome To Finsmart
@@ -48,7 +47,6 @@ export default function LoginScreen({ setIsLoggedIn, setUserRole }) {
         {/* ROLE SELECTION */}
         <View style={styles.roleContainer}>
 
-          {/* Manager */}
           <TouchableOpacity
             style={[styles.roleBox, role === 'manager' && styles.roleSelected]}
             onPress={() => setRole('manager')}
@@ -56,7 +54,6 @@ export default function LoginScreen({ setIsLoggedIn, setUserRole }) {
             <CustomText weight="Medium" style={styles.roleText}>Manager</CustomText>
           </TouchableOpacity>
 
-          {/* Salesperson */}
           <TouchableOpacity
             style={[styles.roleBox, role === 'salesperson' && styles.roleSelected]}
             onPress={() => setRole('salesperson')}
@@ -64,9 +61,15 @@ export default function LoginScreen({ setIsLoggedIn, setUserRole }) {
             <CustomText weight="Medium" style={styles.roleText}>Salesperson</CustomText>
           </TouchableOpacity>
 
+          <TouchableOpacity
+            style={[styles.roleBox, role === 'dealer' && styles.roleSelected]}   // DEALER
+            onPress={() => setRole('dealer')}
+          >
+            <CustomText weight="Medium" style={styles.roleText}>Dealer</CustomText>
+          </TouchableOpacity>
+
         </View>
 
-        {/* Email */}
         <TextInput
           style={styles.input}
           placeholder="Email Address"
@@ -76,7 +79,6 @@ export default function LoginScreen({ setIsLoggedIn, setUserRole }) {
           autoCapitalize="none"
         />
 
-        {/* Password */}
         <View style={styles.passwordContainer}>
           <TextInput
             style={styles.passwordInput}
@@ -95,7 +97,6 @@ export default function LoginScreen({ setIsLoggedIn, setUserRole }) {
           </TouchableOpacity>
         </View>
 
-        {/* Sign In Button */}
         <TouchableOpacity onPress={handleLogin} activeOpacity={0.9}>
           <LinearGradient
             colors={['#0066ff', '#9336fd']}
@@ -116,7 +117,6 @@ export default function LoginScreen({ setIsLoggedIn, setUserRole }) {
     </View>
   );
 }
-
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#fff' },
