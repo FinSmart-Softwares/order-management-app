@@ -18,7 +18,7 @@ export default function LoginScreen({ setIsLoggedIn, setUserRole }) {
     }
 
     // Simple login
-    if (email === 'admin@.com' && password === '1234') {
+    if (email === 'admin.com' && password === '1234') {
       setUserRole(role);   // manager / salesperson / dealer
       setIsLoggedIn(true);
     } else {

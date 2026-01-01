@@ -2,12 +2,13 @@ import React from "react";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import Ionicons from "react-native-vector-icons/Ionicons";
 
-import SalespersonDashboard from "../screens/Dashboard/SalespersonDashboard";
-import SalespersonClientScreen from "../screens/ClientsScreen/SalespersonClientScreen";
-import SalespersonOrderScreen from "../screens/OrderSCreen/SalespersonOrderScreen";
-import SalespersonPlannerScreen from "../screens/PlannerScreen/SalespersonPlannerScreen";
+import SalespersonDashboard from "../screens/Salesperson/Dashboard/SalespersonDashboard";
+import SalespersonClientScreen from "../screens/Salesperson/ClientsScreen/SalespersonClientScreen";
+import SalespersonOrderScreen from "../screens/Salesperson/OrderSCreen/SalespersonOrderScreen";
 import SalesNewOrder from "../screens/NewOrder/SalesNewOrder";
-import SalespersonProfile from "../screens/Salesperson/SalesspersonProfile";  // <-- ADDED
+import SalespersonProfile from "../screens/Salesperson/SalespersonProfile/SalesspersonProfile";
+
+import PlannerStack from "./PlannerStack"; // 🔹 Import the stack
 
 const Tab = createBottomTabNavigator();
 
@@ -32,11 +33,10 @@ export default function SalesTabNavigator({ setIsLoggedIn }) {
             Clients: "people-outline",
             Planner: "calendar-outline",
             NewOrder: "add-circle-outline",
-            Profile: "person-circle-outline", // <-- ADDED
+            Profile: "person-circle-outline",
           };
 
           const iconName = icon[route.name] || "help-circle-outline";
-
           return (
             <Ionicons
               name={focused ? iconName.replace("-outline", "") : iconName}
@@ -47,24 +47,20 @@ export default function SalesTabNavigator({ setIsLoggedIn }) {
         },
       })}
     >
-
       <Tab.Screen name="Home">
         {(props) => <SalespersonDashboard {...props} setIsLoggedIn={setIsLoggedIn} />}
       </Tab.Screen>
 
       <Tab.Screen name="Orders" component={SalespersonOrderScreen} />
-
       <Tab.Screen name="NewOrder" component={SalesNewOrder} />
-
       <Tab.Screen name="Clients" component={SalespersonClientScreen} />
 
-      <Tab.Screen name="Planner" component={SalespersonPlannerScreen} />
+      {/* 🔹 Use PlannerStack instead of direct Planner screen */}
+      <Tab.Screen name="Planner" component={PlannerStack} />
 
-      {/* NEW PROFILE TAB */}
       <Tab.Screen name="Profile">
         {(props) => <SalespersonProfile {...props} setIsLoggedIn={setIsLoggedIn} />}
       </Tab.Screen>
-
     </Tab.Navigator>
   );
 }
